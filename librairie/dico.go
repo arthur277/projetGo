@@ -42,29 +42,29 @@ func (d *Librairie) Add(w http.ResponseWriter, r *http.Request) {
 func (d *Librairie) Get(w http.ResponseWriter, r *http.Request) {
 	d.handleMethodNotAllowed(w, r, http.MethodGet)
 
-	word := r.URL.Query().Get("mot")
+	mot := r.URL.Query().Get("mot")
 
 	d.mu.RLock()
 	defer d.mu.RUnlock()
 
-	definition, exists := d.entries[word]
+	definition, exists := d.entries[mot]
 	if !exists {
 		http.Error(w, "Mot non trouvé", http.StatusNotFound)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{"mot": word, "definition": definition})
+	json.NewEncoder(w).Encode(map[string]string{"mot": mot, "definition": definition})
 }
 
 func (d *Librairie) Remove(w http.ResponseWriter, r *http.Request) {
 	d.handleMethodNotAllowed(w, r, http.MethodDelete)
 
-	word := r.URL.Query().Get("mot")
+	mot := r.URL.Query().Get("mot")
 
 	d.mu.Lock()
 	defer d.mu.Unlock()
-	delete(d.entries, word)
+	delete(d.entries, mot)
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -75,8 +75,8 @@ func (d *Librairie) List(w http.ResponseWriter, r *http.Request) {
 	defer d.mu.RUnlock()
 
 	var entries []map[string]string
-	for word, definition := range d.entries {
-		entry := map[string]string{"mot": word, "definition": definition}
+	for mot, definition := range d.entries {
+		entry := map[string]string{"mot": mot, "definition": definition}
 		entries = append(entries, entry)
 	}
 
